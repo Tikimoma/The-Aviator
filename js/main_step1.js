@@ -5,6 +5,7 @@ var Colors = {
     pink:0xF5986E,
     brownDark:0x23190f,
     blue:0x68c3c0,
+    green:0x32CD32,
 };
 
 var scene,
@@ -166,11 +167,11 @@ Sky = function(){
   }
 }
 
-Sea = function(){
+Ground = function(){
   var geom = new THREE.CylinderGeometry(600,600,800,40,10);
   geom.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI/2));
   var mat = new THREE.MeshPhongMaterial({
-    color:Colors.blue,
+    color:Colors.green,
     transparent:true,
     opacity:.6,
     shading:THREE.FlatShading,
@@ -204,7 +205,7 @@ Cloud = function(){
 }
 
 // modelos 3D
-var sea;
+var ground;
 var airplane;
 
 function createPlane(){
@@ -214,10 +215,10 @@ function createPlane(){
   scene.add(airplane.mesh);
 }
 
-function createSea(){
-  sea = new Sea();
-  sea.mesh.position.y = -600;
-  scene.add(sea.mesh);
+function createGround(){
+  ground = new Ground();
+  ground.mesh.position.y = -600;
+  scene.add(ground.mesh);
 }
 
 function createSky(){
@@ -228,7 +229,7 @@ function createSky(){
 
 function loop(){
   updatePlane();
-  sea.mesh.rotation.z += .005;
+  ground.mesh.rotation.z += .005;
   sky.mesh.rotation.z += .01;
   renderer.render(scene, camera);
   requestAnimationFrame(loop);
@@ -237,8 +238,9 @@ function loop(){
 function updatePlane(){
   var targetY = normalize(mousePos.y,-.75,.75,25, 175);
   var targetX = normalize(mousePos.x,-.75,.75,-100, 100);
-  airplane.mesh.position.y = targetY;
-  airplane.mesh.position.x = targetX;
+  airplane.mesh.position.y += (targetY-airplane.mesh.position.y)*0.1;
+  airplane.mesh.rotation.z = (targetY-airplane.mesh.position.y)*0.0128;
+  airplane.mesh.rotation.x = (airplane.mesh.position.y-targetY)*0.0064;
   airplane.propeller.rotation.x += 0.3;
 }
 
@@ -256,7 +258,7 @@ function init(event){
   createScene();
   createLights();
   createPlane();
-  createSea();
+  createGround();
   createSky();
   loop();
 }
